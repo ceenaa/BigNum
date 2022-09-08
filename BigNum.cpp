@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void reverseNum(string &m)
+void reverseString(string &m)
 {
     string t = "";
     for(int i = m.length()-1 ; i >= 0; i--)
@@ -20,17 +20,13 @@ void removeZero(string &m)
         m = m.substr(1,  m.length() - 1);
 }
 
-BigNum::BigNum(string n)
+BigNum::BigNum(const char* n)
 {
     setSign('+');
     setNumber(n);
 }
-BigNum::BigNum(int i)
-{
-    string t = to_string(i);
-    setNumber(t);
-}
-BigNum::BigNum(long i)
+
+BigNum::BigNum(long long i)
 {
     string t = to_string(i);
     setNumber(t);
@@ -62,14 +58,6 @@ char BigNum::getSign() const
 {
     return sign;
 }
-BigNum::~BigNum()
-{
-
-}
-BigNum::operator string() const
-{
-    return getNumber();
-}
 
 void BigNum::printDelimiter() const
 {
@@ -81,8 +69,13 @@ void BigNum::printDelimiter() const
             t += ',';
         t += this->number[i];
     }
-    reverseNum(t);
+    reverseString(t);
     cout << this->getSign() << t << endl;
+}
+
+void BigNum::operator=(const char* a)
+{
+    setNumber(a);
 }
 
 ostream& operator<<(ostream &output, BigNum n)
@@ -129,8 +122,8 @@ BigNum BigNum::operator+(BigNum n)
         swap(a, b);
     int n1 = a.length()-1, n2 = b.length()-1;
     int carry = 0;
-    reverseNum(a);
-    reverseNum(b);
+    reverseString(a);
+    reverseString(b);
     string res = "";
     for(int i = 0; i <= n2; i++)
     {
@@ -146,7 +139,7 @@ BigNum BigNum::operator+(BigNum n)
     }
     if(carry)
         res += (carry + '0');
-    reverseNum(res);
+    reverseString(res);
     n.setNumber(res);
     return n;
 }
@@ -158,19 +151,17 @@ BigNum BigNum::operator-(BigNum n)
         return ((*this) + n);
     }
     if(getSign() == '-' && n.getSign() == '+')
-    {    
+    {
         BigNum temp = *this;
         temp.setSign('+');
         temp = temp + n;
         temp.setSign('-');
-        return temp; 
+        return temp;
     }
     if(getSign() == '-' && n.getSign() == '-')
     {
         n.setSign('+');
-        n = n - (*this);
-        setSign('-');
-        return n;
+        return (n+*this);
     }
     string a = getNumber(), b = n.getNumber();
     int n1 = a.length(), n2 = b.length();
@@ -180,8 +171,8 @@ BigNum BigNum::operator-(BigNum n)
         swap(n1, n2);
     }
     string res = "";
-    reverseNum(a);
-    reverseNum(b);
+    reverseString(a);
+    reverseString(b);
     int carry = 0;
     for(int i = 0; i < n2; i++)
     {
@@ -194,7 +185,7 @@ BigNum BigNum::operator-(BigNum n)
         else
             carry = 0;
         if(n2 == n1 && i == n2-1 && sub == 0)
-            break;    
+            break;
         res += (sub + '0');
     }
     for(int i = n2; i < n1; i++)
@@ -215,7 +206,7 @@ BigNum BigNum::operator-(BigNum n)
         res += '-';
     if(res == "")
         res += "0";
-    reverseNum(res);
+    reverseString(res);
     removeZero(res);
     n.setNumber(res);
     return n;
@@ -225,8 +216,8 @@ BigNum BigNum::operator*(BigNum n)
     string a = this->getNumber(), b = n.getNumber();
     if(*this > n)
         swap(a, b);
-    reverseNum(a);
-    reverseNum(b);
+    reverseString(a);
+    reverseString(b);
     string t = "";
     BigNum res("0"), temp;
     int carry = 0;
@@ -239,14 +230,14 @@ BigNum BigNum::operator*(BigNum n)
             if(j == b.length() - 1)
             {
                 string holder = to_string(( (b[j]-'0') * (a[i] - '0') ) + carry);
-                reverseNum(holder);
+                reverseString(holder);
                 t += holder;
             }
             else
                 t += ( ((b[j]-'0') * (a[i] - '0')) % 10 ) + carry + '0';
             carry = ( (b[j]-'0') * (a[i] - '0') ) / 10;
         }
-        reverseNum(t);
+        reverseString(t);
         for(int z = 0; z < i; z++)
             t += "0";
         temp.setNumber(t);
@@ -360,8 +351,6 @@ unsigned int BigNum::operator[](size_t i)
         throw out_of_range("Index out of range !");
     return (this->number[i] - '0');
 }
-
-
 
 bool BigNum::operator<(BigNum n)
 {
